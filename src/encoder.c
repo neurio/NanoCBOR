@@ -323,8 +323,8 @@ int nanocbor_fmt_float(nanocbor_encoder_t *enc, float num)
             exp = exp + (uint_least8_t)(HALF_EXP_OFFSET - FLOAT_EXP_OFFSET);
         }
         /* Add exponent */
-        half |= ((exp & HALF_EXP_MASK) << HALF_EXP_POS) |
-                ((*unum >> (FLOAT_EXP_POS - HALF_EXP_POS)) & HALF_FRAC_MASK);
+        half |= (((uint16_t)exp & HALF_EXP_MASK) << HALF_EXP_POS);
+        half |= ((*unum >> (FLOAT_EXP_POS - HALF_EXP_POS)) & HALF_FRAC_MASK);
         return _fmt_halffloat(enc, half);
     }
     /* normal float */
