@@ -2,16 +2,16 @@
  * SPDX-License-Identifier: CC0-1.0
  */
 
-#include "test.h"
 #include "nanocbor/nanocbor.h"
+#include "test.h"
 #include <CUnit/CUnit.h>
+
+/* NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers) */
 
 static void test_decode_indefinite(void)
 {
     /* Test vector, 3 integers in an indefinite array */
-    static const uint8_t indefinite[] = {
-        0x9f, 0x01, 0x02, 0x03, 0xff
-    };
+    static const uint8_t indefinite[] = { 0x9f, 0x01, 0x02, 0x03, 0xff };
 
     nanocbor_value_t val;
     nanocbor_value_t cont;
@@ -35,17 +35,13 @@ static void test_decode_indefinite(void)
 static void test_decode_map(void)
 {
 
-    static const uint8_t map_empty[] = {
-        0xa0
-    };
+    static const uint8_t map_empty[] = { 0xa0 };
 
-    static const uint8_t map_one[] = {
-        0xa1, 0x01, 0x02
-    };
+    static const uint8_t map_one[] = { 0xa1, 0x01, 0x02 };
 
-    static const uint8_t complex_map_decode[] = {
-        0xa5, 0x01, 0x02, 0x03, 0x80, 0x04, 0x9F, 0xFF, 0x05, 0x9F, 0xff, 0x06, 0xf6
-    };
+    static const uint8_t complex_map_decode[]
+        = { 0xa5, 0x01, 0x02, 0x03, 0x80, 0x04, 0x9F,
+            0xFF, 0x05, 0x9F, 0xff, 0x06, 0xf6 };
 
     nanocbor_value_t val;
     nanocbor_value_t cont;
@@ -119,9 +115,7 @@ static void test_decode_map(void)
 
 static void test_tag(void)
 {
-    static const uint8_t arraytag[] = {
-        0x82, 0xd8, 0x37, 0x01, 0x02
-    };
+    static const uint8_t arraytag[] = { 0x82, 0xd8, 0x37, 0x01, 0x02 };
 
     nanocbor_value_t val;
     nanocbor_value_t cont;
@@ -144,20 +138,54 @@ static void test_tag(void)
     CU_ASSERT_EQUAL(nanocbor_at_end(&cont), true);
 }
 
+static void test_double_tag(void)
+{
+    static const uint8_t arraytag[] = {
+        0xD9, 0xD9, 0xF7, // tag(55799)
+        0xDA, 0x52, 0x49, 0x4F, 0x54, // tag(1380536148) 'RIOT'
+        0x43, // bytes(3) -> 'C'
+        0x42, 0x4F, 0x52 // 'BOR'
+    };
+
+    nanocbor_value_t val;
+    const uint8_t *bytes = NULL;
+    size_t bytes_len = 0;
+
+    uint32_t tmp = 0x12345678;
+
+    nanocbor_decoder_init(&val, arraytag, sizeof(arraytag));
+
+    CU_ASSERT_EQUAL(nanocbor_get_tag(&val, &tmp), NANOCBOR_OK);
+    CU_ASSERT_EQUAL(tmp, 55799);
+
+    CU_ASSERT_EQUAL(nanocbor_get_tag(&val, &tmp), NANOCBOR_OK);
+    CU_ASSERT_EQUAL(tmp, 1380536148);
+
+    CU_ASSERT_EQUAL(nanocbor_get_bstr(&val, &bytes, &bytes_len), NANOCBOR_OK);
+    CU_ASSERT_EQUAL(bytes_len, 3);
+    CU_ASSERT_EQUAL(bytes[0], 'B');
+    CU_ASSERT_EQUAL(bytes[1], 'O');
+    CU_ASSERT_EQUAL(bytes[2], 'R');
+
+    CU_ASSERT_EQUAL(nanocbor_at_end(&val), true);
+}
+
 static void test_decode_none(void)
 {
     nanocbor_value_t val;
     nanocbor_value_t cont;
-    uint64_t tmp;
+    uint64_t tmp = 0;
     nanocbor_decoder_init(&val, NULL, 0);
 
     CU_ASSERT_EQUAL(nanocbor_get_type(&val), NANOCBOR_ERR_END);
-    CU_ASSERT_EQUAL(nanocbor_get_uint32(&val, (uint32_t*)&tmp), NANOCBOR_ERR_END);
-    CU_ASSERT_EQUAL(nanocbor_get_int32(&val, (int32_t*)&tmp), NANOCBOR_ERR_END);
+    CU_ASSERT_EQUAL(nanocbor_get_uint32(&val, (uint32_t *)&tmp),
+                    NANOCBOR_ERR_END);
+    CU_ASSERT_EQUAL(nanocbor_get_int32(&val, (int32_t *)&tmp),
+                    NANOCBOR_ERR_END);
     CU_ASSERT_EQUAL(nanocbor_enter_array(&val, &cont), NANOCBOR_ERR_END);
     CU_ASSERT_EQUAL(nanocbor_enter_map(&val, &cont), NANOCBOR_ERR_END);
     CU_ASSERT_EQUAL(nanocbor_get_null(&val), NANOCBOR_ERR_END);
-    CU_ASSERT_EQUAL(nanocbor_get_bool(&val, (bool*)&tmp), NANOCBOR_ERR_END);
+    CU_ASSERT_EQUAL(nanocbor_get_bool(&val, (bool *)&tmp), NANOCBOR_ERR_END);
     CU_ASSERT_EQUAL(nanocbor_skip(&val), NANOCBOR_ERR_END);
     CU_ASSERT_EQUAL(nanocbor_skip_simple(&val), NANOCBOR_ERR_END);
 }
@@ -181,12 +209,43 @@ static void test_decode_basic(void)
     CU_ASSERT_EQUAL(5, intval);
 
     const uint8_t decimal_frac[] = { 0xC4, 0x82, 0x21, 0x19, 0x6a, 0xb3 };
-    int32_t m;
-    int32_t e;
+    int32_t mantissa = 0;
+    int32_t exponent = 0;
     nanocbor_decoder_init(&decoder, decimal_frac, sizeof(decimal_frac));
-    CU_ASSERT_EQUAL(nanocbor_get_decimal_frac(&decoder, &e, &m), 0);
-    CU_ASSERT_EQUAL(e, -2);
-    CU_ASSERT_EQUAL(m, 27315);
+    CU_ASSERT_EQUAL(nanocbor_get_decimal_frac(&decoder, &exponent, &mantissa),
+                    0);
+    CU_ASSERT_EQUAL(exponent, -2);
+    CU_ASSERT_EQUAL(mantissa, 27315);
+}
+
+static void _decode_skip_simple(const uint8_t *test_case, size_t test_case_len)
+{
+    nanocbor_value_t decoder;
+    nanocbor_decoder_init(&decoder, test_case, test_case_len);
+    CU_ASSERT_EQUAL(nanocbor_at_end(&decoder), false);
+    int res = nanocbor_skip_simple(&decoder);
+    printf("skip result = %d", res);
+    CU_ASSERT_EQUAL(res, NANOCBOR_OK);
+    CU_ASSERT_EQUAL(nanocbor_at_end(&decoder), true);
+}
+
+static void test_decode_skip(void)
+{
+    static const uint8_t test_uint[] = { 0x00 };
+    _decode_skip_simple(test_uint, sizeof(test_uint));
+    static const uint8_t test_nint[] = { 0x20 };
+    _decode_skip_simple(test_nint, sizeof(test_nint));
+    static const uint8_t test_bstr_empty[] = { 0x40 };
+    _decode_skip_simple(test_bstr_empty, sizeof(test_bstr_empty));
+    static const uint8_t test_bstr[] = { 0x42, 0xAA, 0xBB };
+    _decode_skip_simple(test_bstr, sizeof(test_bstr));
+    static const uint8_t test_tstr[] = { 0x65, 0x68, 0x65, 0x6C, 0x6C, 0x6F };
+    _decode_skip_simple(test_tstr, sizeof(test_tstr));
+
+    static const uint8_t test_float[] = { 0xF9, 0x42, 0x00 };
+    _decode_skip_simple(test_float, sizeof(test_float));
+    static const uint8_t test_simple[] = { 0xF4 };
+    _decode_skip_simple(test_simple, sizeof(test_simple));
 }
 
 const test_t tests_decoder[] = {
@@ -211,7 +270,17 @@ const test_t tests_decoder[] = {
         .n = "CBOR tag decode test",
     },
     {
+        .f = test_double_tag,
+        .n = "CBOR double tag decode test",
+    },
+    {
+        .f = test_decode_skip,
+        .n = "CBOR simple skip test",
+    },
+    {
         .f = NULL,
         .n = NULL,
-    }
+    },
 };
+
+/* NOLINTEND(cppcoreguidelines-avoid-magic-numbers) */

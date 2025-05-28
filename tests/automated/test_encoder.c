@@ -2,18 +2,16 @@
  * SPDX-License-Identifier: CC0-1.0
  */
 
-#include "test.h"
 #include "nanocbor/nanocbor.h"
-#include "nanocbor/stream_encoders/memory_buffer.h"
-#include <math.h>
-#include <float.h>
+#include "test.h"
 #include <CUnit/CUnit.h>
+#include <float.h>
+#include <math.h>
 
 static void print_bytestr(const uint8_t *bytes, size_t len)
 {
     printf("\n");
-    for(unsigned int idx=0; idx < len; idx++)
-    {
+    for (unsigned int idx = 0; idx < len; idx++) {
         printf("%02X", bytes[idx]);
     }
     printf("\n");
@@ -22,14 +20,8 @@ static void print_bytestr(const uint8_t *bytes, size_t len)
 static void test_encode_float_specials(void)
 {
     uint8_t buf[64];
-    memory_encoder stream;
-    MemoryStream_Init(&stream, buf, sizeof(buf));
-
-    FnStreamLength len_fn = (FnStreamLength)MemoryStream_Length;
-    FnStreamReserve res_fn = (FnStreamReserve)MemoryStream_Reserve;
-    FnStreamInsert ins_fn = (FnStreamInsert)MemoryStream_Insert;
-
-    nanocbor_encoder_t enc = NANOCBOR_ENCODER(&stream, len_fn, res_fn, ins_fn);
+    nanocbor_encoder_t enc;
+    nanocbor_encoder_init(&enc, buf, sizeof(buf));
 
     nanocbor_fmt_array_indefinite(&enc);
     CU_ASSERT_EQUAL(nanocbor_fmt_float(&enc, NAN), 3);
@@ -47,15 +39,10 @@ static void test_encode_float_specials(void)
 
 static void test_encode_float_to_half(void)
 {
+    // NOLINTBEGIN
     uint8_t buf[64];
-    memory_encoder stream;
-    MemoryStream_Init(&stream, buf, sizeof(buf));
-
-    FnStreamLength len_fn = (FnStreamLength)MemoryStream_Length;
-    FnStreamReserve res_fn = (FnStreamReserve)MemoryStream_Reserve;
-    FnStreamInsert ins_fn = (FnStreamInsert)MemoryStream_Insert;
-
-    nanocbor_encoder_t enc = NANOCBOR_ENCODER(&stream, len_fn, res_fn, ins_fn);
+    nanocbor_encoder_t enc;
+    nanocbor_encoder_init(&enc, buf, sizeof(buf));
 
     nanocbor_fmt_array_indefinite(&enc);
     CU_ASSERT_EQUAL(nanocbor_fmt_float(&enc, 1.75), 3);
@@ -67,6 +54,7 @@ static void test_encode_float_to_half(void)
     CU_ASSERT_EQUAL(nanocbor_fmt_float(&enc, -1.9990234375), 3);
     CU_ASSERT_EQUAL(nanocbor_fmt_float(&enc, -1.99951171875), 5);
     CU_ASSERT_EQUAL(nanocbor_fmt_float(&enc, -2.0009765625), 5);
+    // NOLINTEND
 
     nanocbor_fmt_end_indefinite(&enc);
     print_bytestr(buf, nanocbor_encoded_len(&enc));
@@ -75,14 +63,8 @@ static void test_encode_float_to_half(void)
 static void test_encode_double_to_float(void)
 {
     uint8_t buf[128];
-    memory_encoder stream;
-    MemoryStream_Init(&stream, buf, sizeof(buf));
-
-    FnStreamLength len_fn = (FnStreamLength)MemoryStream_Length;
-    FnStreamReserve res_fn = (FnStreamReserve)MemoryStream_Reserve;
-    FnStreamInsert ins_fn = (FnStreamInsert)MemoryStream_Insert;
-
-    nanocbor_encoder_t enc = NANOCBOR_ENCODER(&stream, len_fn, res_fn, ins_fn);
+    nanocbor_encoder_t enc;
+    nanocbor_encoder_init(&enc, buf, sizeof(buf));
 
     nanocbor_fmt_array_indefinite(&enc);
     CU_ASSERT_EQUAL(nanocbor_fmt_double(&enc, 1.75), 3);
@@ -123,5 +105,5 @@ const test_t tests_encoder[] = {
     {
         .f = NULL,
         .n = NULL,
-    }
+    },
 };

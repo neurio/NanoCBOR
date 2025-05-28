@@ -27,8 +27,12 @@
  * @author      Koen Zandberg <koen@bergzand.net>
  */
 
-#ifndef NANOCBOR_H
-#define NANOCBOR_H
+#ifndef NANOCBOR_NANOCBOR_H
+#define NANOCBOR_NANOCBOR_H
+
+#if defined(PWR_BMU) || defined(PWR_INV)
+#include "Int8.h"
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -38,70 +42,69 @@
 extern "C" {
 #endif
 
-#define NANOCBOR_TYPE_OFFSET    (5U)   /**< Bit shift for CBOR major types */
-#define NANOCBOR_TYPE_MASK      0xE0U  /**< Mask for CBOR major types */
-#define NANOCBOR_VALUE_MASK     0x1FU  /**< Mask for CBOR values */
+#define NANOCBOR_TYPE_OFFSET (5U) /**< Bit shift for CBOR major types */
+#define NANOCBOR_TYPE_MASK 0xE0U /**< Mask for CBOR major types */
+#define NANOCBOR_VALUE_MASK 0x1FU /**< Mask for CBOR values */
 
 /**
  * @name CBOR type numbers
  * @{
  */
-#define NANOCBOR_TYPE_UINT      (0x00U) /**< positive integer type */
-#define NANOCBOR_TYPE_NINT      (0x01U) /**< negative integer type */
-#define NANOCBOR_TYPE_BSTR      (0x02U) /**< byte string type */
-#define NANOCBOR_TYPE_TSTR      (0x03U) /**< text string type */
-#define NANOCBOR_TYPE_ARR       (0x04U) /**< array type */
-#define NANOCBOR_TYPE_MAP       (0x05U) /**< map type */
-#define NANOCBOR_TYPE_TAG       (0x06U) /**< tag type */
-#define NANOCBOR_TYPE_FLOAT     (0x07U) /**< float type */
+#define NANOCBOR_TYPE_UINT (0x00U) /**< positive integer type */
+#define NANOCBOR_TYPE_NINT (0x01U) /**< negative integer type */
+#define NANOCBOR_TYPE_BSTR (0x02U) /**< byte string type */
+#define NANOCBOR_TYPE_TSTR (0x03U) /**< text string type */
+#define NANOCBOR_TYPE_ARR (0x04U) /**< array type */
+#define NANOCBOR_TYPE_MAP (0x05U) /**< map type */
+#define NANOCBOR_TYPE_TAG (0x06U) /**< tag type */
+#define NANOCBOR_TYPE_FLOAT (0x07U) /**< float type */
 /** @} */
 
 /**
  * @name CBOR major types including the bit shift
  * @{
  */
-#define NANOCBOR_MASK_UINT      (NANOCBOR_TYPE_UINT  << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_NINT      (NANOCBOR_TYPE_NINT  << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_BSTR      (NANOCBOR_TYPE_BSTR  << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_TSTR      (NANOCBOR_TYPE_TSTR  << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_ARR       (NANOCBOR_TYPE_ARR   << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_MAP       (NANOCBOR_TYPE_MAP   << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_TAG       (NANOCBOR_TYPE_TAG   << NANOCBOR_TYPE_OFFSET)
-#define NANOCBOR_MASK_FLOAT     (NANOCBOR_TYPE_FLOAT << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_UINT (NANOCBOR_TYPE_UINT << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_NINT (NANOCBOR_TYPE_NINT << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_BSTR (NANOCBOR_TYPE_BSTR << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_TSTR (NANOCBOR_TYPE_TSTR << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_ARR (NANOCBOR_TYPE_ARR << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_MAP (NANOCBOR_TYPE_MAP << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_TAG (NANOCBOR_TYPE_TAG << NANOCBOR_TYPE_OFFSET)
+#define NANOCBOR_MASK_FLOAT (NANOCBOR_TYPE_FLOAT << NANOCBOR_TYPE_OFFSET)
 /** @} */
 
 /**
  * @name CBOR simple data types
  * @{
  */
-#define NANOCBOR_SIMPLE_FALSE       20U /**< False     */
-#define NANOCBOR_SIMPLE_TRUE        21U /**< True      */
-#define NANOCBOR_SIMPLE_NULL        22U /**< NULL      */
-#define NANOCBOR_SIMPLE_UNDEF       23U /**< Undefined */
+#define NANOCBOR_SIMPLE_FALSE 20U /**< False     */
+#define NANOCBOR_SIMPLE_TRUE 21U /**< True      */
+#define NANOCBOR_SIMPLE_NULL 22U /**< NULL      */
+#define NANOCBOR_SIMPLE_UNDEF 23U /**< Undefined */
 /** @} */
 
 /**
  * @name CBOR data sizes
  * @{
  */
-#define NANOCBOR_SIZE_BYTE          24U /**< Value contained in a byte */
-#define NANOCBOR_SIZE_SHORT         25U /**< Value contained in a short */
-#define NANOCBOR_SIZE_WORD          26U /**< Value contained in a word */
-#define NANOCBOR_SIZE_LONG          27U /**< Value contained in a long */
-#define NANOCBOR_SIZE_INDEFINITE    31U /**< Indefinite sized container */
+#define NANOCBOR_SIZE_BYTE 24U /**< Value contained in a byte */
+#define NANOCBOR_SIZE_SHORT 25U /**< Value contained in a short */
+#define NANOCBOR_SIZE_WORD 26U /**< Value contained in a word */
+#define NANOCBOR_SIZE_LONG 27U /**< Value contained in a long */
+#define NANOCBOR_SIZE_INDEFINITE 31U /**< Indefinite sized container */
 /** @} */
 
 /**
  * @name CBOR Tag values
  * @{
  */
-#define NANOCBOR_TAG_DATE_TIME      (0x0) /**< Standard date/time string */
-#define NANOCBOR_TAG_EPOCH          (0x1) /**< Epoch-based date/time */
-#define NANOCBOR_TAG_BIGNUMS_P      (0x2) /**< Positive bignum */
-#define NANOCBOR_TAG_BIGNUMS_N      (0x3) /**< Negative bignum */
-#define NANOCBOR_TAG_DEC_FRAC       (0x4) /**< Decimal Fraction */
-#define NANOCBOR_TAG_BIGFLOATS      (0x5) /**< Bigfloat */
-#define NANOCBOR_TAG_OBJECT         (27)  /**< Generic Object */
+#define NANOCBOR_TAG_DATE_TIME (0x0) /**< Standard date/time string */
+#define NANOCBOR_TAG_EPOCH (0x1) /**< Epoch-based date/time */
+#define NANOCBOR_TAG_BIGNUMS_P (0x2) /**< Positive bignum */
+#define NANOCBOR_TAG_BIGNUMS_N (0x3) /**< Negative bignum */
+#define NANOCBOR_TAG_DEC_FRAC (0x4) /**< Decimal Fraction */
+#define NANOCBOR_TAG_BIGFLOATS (0x5) /**< Bigfloat */
 /** @} */
 
 /**
@@ -140,64 +143,75 @@ typedef enum {
     NANOCBOR_NOT_FOUND = -5,
 } nanocbor_error_t;
 
-
 /**
  * @brief decoder context
  */
 typedef struct nanocbor_value {
-    const uint_least8_t *cur;   /**< Current position in the buffer             */
-    const uint_least8_t *end;   /**< End of the buffer                          */
-    uint32_t remaining;   /**< Number of items remaining in the container */
-    uint_least8_t flags;        /**< Flags for decoding hints                   */
+    const uint8_t *cur; /**< Current position in the buffer             */
+    const uint8_t *end; /**< End of the buffer                          */
+    uint64_t remaining; /**< Number of items remaining in the container */
+    uint8_t flags; /**< Flags for decoding hints                   */
 } nanocbor_value_t;
 
 /**
- * @name stream interface definition
+ * @brief Encoder context forward declaration
+ */
+typedef struct nanocbor_encoder nanocbor_encoder_t;
+
+/**
+ * @name encoder streaming functions
  * @{
  */
 
 /**
- * @brief Length in bytes of supplied cbor data.
- *  Incremented separate from the buffer check.
+ * @brief Fits function for streaming encoder data
  *
- * @param[in]   stream  the private data of the stream implementation
+ * This function is called to check whether the data that will be supplied can
+ * be consumed by the interface.
  *
- * @return            length in bytes of supplied cbor data.
+ * The append function will only be called if this function returns true. The
+ * amount of bytes checked by this call can be used by multiple successive
+ * @ref nanocbor_encoder_append calls
+ *
+ * @param   enc     The encoder context struct
+ * @param   ctx     The context ptr supplied in the
+ *                  @ref nanocbor_encoder_stream_init call
+ * @param   len     Length of the data in bytes that will be supplied
  */
-typedef size_t (*FnStreamLength)(void *stream);
+typedef bool (*nanocbor_encoder_fits)(nanocbor_encoder_t *enc, void *ctx, size_t len);
 
 /**
- * @brief Reserve bytes within the stream.
+ * @brief Append function for streaming encoder data
  *
- * @param[in]   stream  the private data of the stream implementation
- * @param[in]   len   the number of bytes to reserve
+ * This is a user supplied function for the polymorphic encoder interface. It
+ * will only be called if a previous call to @ref nanocbor_encoder_fits returned
+ * true.
  *
- * @return   len input is provided back on success,
- *           and NANOCBOR_ERR_END if not able to reserve
+ * @param   enc     The encoder context struct
+ * @param   ctx     The context ptr supplied in the
+ *                  @ref nanocbor_encoder_stream_init call
+ * @param   data    Data emitted by the encoder
+ * @param   len     Length of the data in bytes
  */
-typedef int (*FnStreamReserve)(void *stream,  size_t len);
-
-/**
- * @brief Copy the given cbor data into the stream.
- *
- * @param[in]   stream  the private data of the stream implementation
- * @param[in]   src   pointer to the data to copy
- * @param[in]   n     the number of bytes to copy
- */
-typedef void (*FnStreamInsert)(void *stream, const void *src, size_t n);
+typedef void (*nanocbor_encoder_append)(nanocbor_encoder_t *enc, void *ctx, const uint8_t *data, size_t len);
 
 /** @} */
 
 /**
  * @brief encoder context
  */
-typedef struct nanocbor_encoder {
-    FnStreamLength len;  /**< Length in bytes of supplied cbor data. */
-    FnStreamReserve reserve;  /**< Allocate/ensure the next 'len' bytes can fit */
-    FnStreamInsert insert;  /**< Insert cbor data into the stream */
-    void *stream;  /**< The private data to give back to stream functions */
-
-} nanocbor_encoder_t;
+struct nanocbor_encoder {
+    size_t len; /**< Length in bytes of supplied cbor data. Incremented
+                 *  separate from the buffer check  */
+    nanocbor_encoder_append append; /**< Function used to append encoded data */
+    nanocbor_encoder_fits fits; /** Function used to check encoded length */
+    union {
+        uint8_t *cur; /**< Current position in the buffer, unioned to keep
+                       *   compatibility */
+        void *context; /**< Context ptr supplied to the custom functions */
+    };
+    uint8_t *end; /**< end of the buffer                      */
+};
 
 /**
  * @name decoder flags
@@ -207,7 +221,7 @@ typedef struct nanocbor_encoder {
 /**
  * @brief decoder value is inside a container
  */
-#define NANOCBOR_DECODER_FLAG_CONTAINER  (0x01U)
+#define NANOCBOR_DECODER_FLAG_CONTAINER (0x01U)
 
 /**
  * @brief decoder value is inside an indefinite length container
@@ -230,8 +244,8 @@ typedef struct nanocbor_encoder {
  * @param[in]   buf     Buffer to decode from
  * @param[in]   len     Length in bytes of the buffer
  */
-void nanocbor_decoder_init(nanocbor_value_t *value,
-                           const uint_least8_t *buf, size_t len);
+void nanocbor_decoder_init(nanocbor_value_t *value, const uint8_t *buf,
+                           size_t len);
 
 /**
  * @brief Retrieve the type of the CBOR value at the current position
@@ -254,7 +268,7 @@ int nanocbor_get_type(const nanocbor_value_t *value);
 bool nanocbor_at_end(const nanocbor_value_t *it);
 
 /**
- * @brief Retrieve a positive integer as uint_least8_t from the stream
+ * @brief Retrieve a positive integer as uint8_t from the stream
  *
  * If the value at `cvalue` is greater than 8 bit (> 255), error is returned.
  *
@@ -266,7 +280,7 @@ bool nanocbor_at_end(const nanocbor_value_t *it);
  * @return              number of bytes read
  * @return              negative on error
  */
-int nanocbor_get_uint8(nanocbor_value_t *cvalue, uint_least8_t *value);
+int nanocbor_get_uint8(nanocbor_value_t *cvalue, uint8_t *value);
 
 /**
  * @brief Retrieve a positive integer as uint16_t from the stream
@@ -299,7 +313,22 @@ int nanocbor_get_uint16(nanocbor_value_t *cvalue, uint16_t *value);
 int nanocbor_get_uint32(nanocbor_value_t *cvalue, uint32_t *value);
 
 /**
- * @brief Retrieve a signed integer as int_least8_t from the stream
+ * @brief Retrieve a positive integer as uint64_t from the stream
+ *
+ * If the value at `cvalue` is greater than 64 bit, error is returned.
+ *
+ * The resulting @p value is undefined if the result is an error condition
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  value   returned positive integer
+ *
+ * @return              number of bytes read
+ * @return              negative on error
+ */
+int nanocbor_get_uint64(nanocbor_value_t *cvalue, uint64_t *value);
+
+/**
+ * @brief Retrieve a signed integer as int8_t from the stream
  *
  * If the value at `cvalue` is greater than 8 bit (< -128 or > 127),
  * error is returned.
@@ -312,7 +341,7 @@ int nanocbor_get_uint32(nanocbor_value_t *cvalue, uint32_t *value);
  * @return              number of bytes read
  * @return              negative on error
  */
-int nanocbor_get_int8(nanocbor_value_t *cvalue, int_least8_t *value);
+int nanocbor_get_int8(nanocbor_value_t *cvalue, int8_t *value);
 
 /**
  * @brief Retrieve a signed integer as int16_t from the stream
@@ -346,6 +375,21 @@ int nanocbor_get_int16(nanocbor_value_t *cvalue, int16_t *value);
 int nanocbor_get_int32(nanocbor_value_t *cvalue, int32_t *value);
 
 /**
+ * @brief Retrieve a signed integer as int64_t from the stream
+ *
+ * If the value at `cvalue` is greater than 64 bit, error is returned.
+ *
+ * The resulting @p value is undefined if the result is an error condition
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  value   returned signed integer
+ *
+ * @return              number of bytes read
+ * @return              negative on error
+ */
+int nanocbor_get_int64(nanocbor_value_t *cvalue, int64_t *value);
+
+/**
  * @brief Retrieve a decimal fraction from the stream as a int32_t mantisa and
  *        int32_t exponent
  *
@@ -375,7 +419,8 @@ int nanocbor_get_decimal_frac(nanocbor_value_t *cvalue, int32_t *e, int32_t *m);
  * @return              NANOCBOR_OK on success
  * @return              negative on error
  */
-int nanocbor_get_bstr(nanocbor_value_t *cvalue, const uint_least8_t **buf, size_t *len);
+int nanocbor_get_bstr(nanocbor_value_t *cvalue, const uint8_t **buf,
+                      size_t *len);
 
 /**
  * @brief Retrieve a text string from the stream
@@ -390,7 +435,8 @@ int nanocbor_get_bstr(nanocbor_value_t *cvalue, const uint_least8_t **buf, size_
  * @return              NANOCBOR_OK on success
  * @return              negative on error
  */
-int nanocbor_get_tstr(nanocbor_value_t *cvalue, const uint_least8_t **buf, size_t *len);
+int nanocbor_get_tstr(nanocbor_value_t *cvalue, const uint8_t **buf,
+                      size_t *len);
 
 /**
  * @brief Search for a tstr key in a map.
@@ -441,7 +487,8 @@ int nanocbor_enter_map(const nanocbor_value_t *it, nanocbor_value_t *map);
  * @param[in]   it          parent CBOR structure
  * @param[in]   container   exhausted CBOR container
  */
-void nanocbor_leave_container(nanocbor_value_t *it, nanocbor_value_t *container);
+void nanocbor_leave_container(nanocbor_value_t *it,
+                              nanocbor_value_t *container);
 
 /**
  * @brief Retrieve a tag as positive uint32_t from the stream
@@ -456,6 +503,18 @@ void nanocbor_leave_container(nanocbor_value_t *it, nanocbor_value_t *container)
 int nanocbor_get_tag(nanocbor_value_t *cvalue, uint32_t *tag);
 
 /**
+ * @brief Retrieve a tag as positive uint64_t from the stream
+ *
+ * The resulting @p value is undefined if the result is an error condition
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  tag     returned tag as positive integer
+ *
+ * @return              NANOCBOR_OK on success
+ */
+int nanocbor_get_tag64(nanocbor_value_t *cvalue, uint64_t *tag);
+
+/**
  * @brief Retrieve a null value from the stream
  *
  * This function checks if the next CBOR value is a NULL value and advances to
@@ -464,6 +523,7 @@ int nanocbor_get_tag(nanocbor_value_t *cvalue, uint32_t *tag);
  * @param[in]   cvalue  CBOR value to decode from
  *
  * @return              NANOCBOR_OK on success
+ * @return              negative on error
  */
 int nanocbor_get_null(nanocbor_value_t *cvalue);
 
@@ -477,6 +537,64 @@ int nanocbor_get_null(nanocbor_value_t *cvalue);
  * @return              negative on error
  */
 int nanocbor_get_bool(nanocbor_value_t *cvalue, bool *value);
+
+/**
+ * @brief Retrieve a simple value of undefined from the stream
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ *
+ * @return              NANOCBOR_OK on success
+ * @return              negative on error
+ */
+int nanocbor_get_undefined(nanocbor_value_t *cvalue);
+
+/**
+ * @brief Retrieve a simple value as integer from the stream
+ *
+ * This function returns the simple value as uint8_t value and skips decoding
+ * the meaning of the values. For example, a CBOR true is returned as value 21.
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  value   Simple value retrieved from the stream
+ *
+ * @return              NANOCBOR_OK on success
+ * @return              negative on error
+ */
+int nanocbor_get_simple(nanocbor_value_t *cvalue, uint8_t *value);
+
+/**
+ * @brief Retrieve a float value from the stream.
+ *
+ * This function automatically converts CBOR half floats into 32 bit floating
+ * points.
+ *
+ * @note This function assumes the host uses ieee754 to represent floating point
+ * numbers
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  value   Simple value retrieved from the stream
+ *
+ * @return              number of bytes read on success
+ * @return              negative on error
+ */
+int nanocbor_get_float(nanocbor_value_t *cvalue, float *value);
+
+/**
+ * @brief Retrieve a double-sized floating point value from the stream.
+ *
+ * This function automatically converts CBOR half floats and 32 bit floats into
+ * into 64 bit floating points.
+ *
+ * @note This function assumes the host uses ieee754 to represent floating point
+ * numbers
+ *
+ * @param[in]   cvalue  CBOR value to decode from
+ * @param[out]  value   Simple value retrieved from the stream
+ *
+ * @return              number of bytes read on success
+ * @return              negative on error
+ */
+int nanocbor_get_double(nanocbor_value_t *cvalue, double *value);
 
 /**
  * @brief Skip to the next value in the CBOR stream
@@ -519,23 +637,58 @@ int nanocbor_skip_simple(nanocbor_value_t *it);
  * @return              NANOCBOR_OK on success
  * @return              negative on error
  */
-int nanocbor_get_subcbor(nanocbor_value_t *it, const uint_least8_t **start,
+int nanocbor_get_subcbor(nanocbor_value_t *it, const uint8_t **start,
                          size_t *len);
 
 /**
- * @brief Retrieve the number of remaining values is a CBOR container
+ * @brief Retrieve the number of remaining values in a CBOR container: either array or map
  *
  * The returned value is undefined when not inside a container or when the
  * container is of indefinite length. For a map, the number is the full number
  * of CBOR items remaining (twice the number of key/value pairs).
  *
+ * See also nanocbor_array_items_remaining and nanocbor_map_items_remaining
+ *
  * @param[in]   value   value inside a CBOR container
  *
  * @return              number of items remaining
  */
-static inline uint32_t nanocbor_container_remaining(const nanocbor_value_t *value)
+static inline uint32_t
+nanocbor_container_remaining(const nanocbor_value_t *value)
 {
     return value->remaining;
+}
+
+/**
+ * @brief Retrieve the number of remaining items in a CBOR array
+ *
+ * The returned value is undefined when not inside an array or when the
+ * array is of indefinite length.
+ *
+ * @param[in]   value   nanocbor value inside a CBOR array
+ *
+ * @return              number of array items remaining
+ */
+static inline uint32_t
+nanocbor_array_items_remaining(const nanocbor_value_t *value)
+{
+    return nanocbor_container_remaining(value);
+}
+
+/**
+ * @brief Retrieve the number of remaining values in a CBOR map
+ *
+ * The returned value is undefined when not inside a map or when the
+ * container is of indefinite length.
+ *
+ * @param[in]   value   nanocbor value inside a CBOR map
+ *
+ * @return              number of key/value pairs remaining
+ */
+static inline uint32_t
+nanocbor_map_items_remaining(const nanocbor_value_t *value)
+{
+    return nanocbor_container_remaining(value)/2;
 }
 
 /**
@@ -547,10 +700,12 @@ static inline uint32_t nanocbor_container_remaining(const nanocbor_value_t *valu
  * @return                  False when not indefinite-length or not in a
  *                          container
  */
-static inline bool nanocbor_container_indefinite(const nanocbor_value_t *container)
+static inline bool
+nanocbor_container_indefinite(const nanocbor_value_t *container)
 {
-    return (container->flags ==
-        (NANOCBOR_DECODER_FLAG_INDEFINITE | NANOCBOR_DECODER_FLAG_CONTAINER));
+    return (container->flags
+            == (NANOCBOR_DECODER_FLAG_INDEFINITE
+                | NANOCBOR_DECODER_FLAG_CONTAINER));
 }
 
 static inline bool nanocbor_in_container(const nanocbor_value_t *container)
@@ -566,21 +721,35 @@ static inline bool nanocbor_in_container(const nanocbor_value_t *container)
  */
 
 /**
- * @brief Declare a nanocbor_encoder_t
+ * @brief Initializes an encoder context with a memory buffer.
+ *
+ * It is safe to pass `NULL` to @p buf with @p len is `0` to determine the size
+ * of a CBOR structure.
+ *
+ * @param[in]   enc     Encoder context
+ * @param[in]   buf     Buffer to write into
+ * @param[in]   len     length of the buffer
  */
-#define NANOCBOR_ENCODER(priv_data, lenfn, resfn, insfn)    \
-    (const nanocbor_encoder_t) {                              \
-        .len = lenfn,                                         \
-        .reserve = resfn,                                     \
-        .insert = insfn,                                      \
-        .stream = priv_data,                                  \
-    }
+void nanocbor_encoder_init(nanocbor_encoder_t *enc, uint8_t *buf, size_t len);
+
+/**
+ * @brief Initializes an encoder context with custom append and fits functions.
+ *
+ * @param[in]   enc         Encoder context
+ * @param[in]   ctx         Context pointer
+ * @param[in]   append_func Called to append emitted encoder data
+ * @param[in]   fits_func   Called to check if data can be consumed
+ */
+void nanocbor_encoder_stream_init(nanocbor_encoder_t *enc, void *ctx,
+                                  nanocbor_encoder_append append_func,
+                                  nanocbor_encoder_fits fits_func);
 
 /**
  * @brief Retrieve the encoded length of the CBOR structure
  *
- * This function doesn't take the length of the stream into account,
- * it only returns the number of bytes the current CBOR structure would take up.
+ * This function doesn't take the length of the buffer supplied to
+ * @ref nanocbor_encoder_init into account, it only returns the number of bytes
+ * the current CBOR structure would take up.
  *
  * @param[in]   enc     Encoder context
  *
@@ -620,17 +789,6 @@ int nanocbor_fmt_uint(nanocbor_encoder_t *enc, uint64_t num);
  * @return              Negative on error
  */
 int nanocbor_fmt_tag(nanocbor_encoder_t *enc, uint64_t num);
-
-/**
- * @brief Write a CBOR Object tag (27) to the buffer
- *
- * @param[in]   enc     Encoder context
- * @param[in]   num_params Number of parameters needed to construct this object.
- *
- * @return              number of bytes written
- * @return              Negative on error
- */
-int nanocbor_fmt_object(nanocbor_encoder_t *enc, size_t num_params);
 
 /**
  * @brief Write a signed integer of at most sizeof int32_t into the buffer
@@ -685,7 +843,7 @@ int nanocbor_fmt_tstr(nanocbor_encoder_t *enc, size_t len);
  * @return              NANOCBOR_OK if the string fits
  * @return              Negative on error
  */
-int nanocbor_put_bstr(nanocbor_encoder_t *enc, const uint_least8_t *str, size_t len);
+int nanocbor_put_bstr(nanocbor_encoder_t *enc, const uint8_t *str, size_t len);
 
 /**
  * @brief Copy a text string with indicator into the encoder buffer
@@ -819,5 +977,5 @@ int nanocbor_fmt_decimal_frac(nanocbor_encoder_t *enc, int32_t e, int32_t m);
 }
 #endif
 
-#endif /* NANOCBOR_H */
+#endif /* NANOCBOR_NANOCBOR_H */
 /** @} */
